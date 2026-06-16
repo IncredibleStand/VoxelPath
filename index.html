@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Pathfinding Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body class="overflow-hidden bg-black font-mono">
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--   THREE.JS CANVAS — full-screen background  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <canvas id="three-canvas" class="fixed inset-0 w-full h-full z-0"></canvas>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--   HUD — floating control panel (top)        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="hud"
+    class="fixed top-4 left-1/2 -translate-x-1/2 z-50
+           flex flex-col items-center
+           w-[min(98vw,900px)]">
+
+    <!-- Title bar -->
+    <div class="w-full flex items-center justify-between px-5 py-2
+                bg-[rgba(5,10,20,0.85)] border border-[rgba(56,189,248,0.18)]
+                backdrop-blur-xl rounded-t-xl">
+      <div class="flex items-center">
+        <span class="text-sky-400 text-sm font-semibold tracking-[0.25em] uppercase">PathGrid 3D</span>
+        <span class="ml-3 text-[10px] text-slate-500 tracking-widest uppercase">Pathfinding Visualizer</span>
+      </div>
+      <div id="status-badge"
+        class="text-[10px] px-3 py-1 rounded-full border border-slate-700
+               text-slate-400 tracking-widest uppercase transition-all duration-300">
+        IDLE
+      </div>
+    </div>
+
+    <!-- Main controls row -->
+    <div class="w-full grid grid-cols-2 md:grid-cols-4
+                bg-[rgba(5,10,20,0.78)] backdrop-blur-xl
+                border-x border-[rgba(56,189,248,0.12)]
+                divide-x divide-[rgba(56,189,248,0.08)]">
+
+      <!-- Algorithm selector -->
+      <div class="flex flex-col px-4 py-3">
+        <label class="text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">Algorithm</label>
+        <select id="algorithm-select"
+          class="bg-transparent text-sky-300 text-sm font-medium
+                 border border-[rgba(56,189,248,0.2)] rounded-md px-2 py-1.5
+                 focus:outline-none focus:border-sky-400 cursor-pointer
+                 appearance-none pr-6 relative">
+          <option value="astar">A* (A-Star)</option>
+          <option value="dijkstra">Dijkstra's</option>
+          <option value="bfs">Breadth-First</option>
+          <option value="dfs">Depth-First</option>
+        </select>
+      </div>
+
+      <!-- Maze selector -->
+      <div class="flex flex-col px-4 py-3">
+        <label class="text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">Maze Type</label>
+        <select id="maze-select"
+          class="bg-transparent text-sky-300 text-sm font-medium
+                 border border-[rgba(56,189,248,0.2)] rounded-md px-2 py-1.5
+                 focus:outline-none focus:border-sky-400 cursor-pointer
+                 appearance-none">
+          <option value="none">No Maze</option>
+          <option value="recursive">Recursive Division</option>
+          <option value="scatter">Random Scatter</option>
+          <option value="spiral">Spiral Maze</option>
+        </select>
+      </div>
+
+      <!-- Speed slider -->
+      <div class="flex flex-col px-4 py-3">
+        <label class="text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">
+          Speed — <span id="speed-label" class="text-sky-400">Normal</span>
+        </label>
+        <div class="flex items-center mt-1">
+          <span class="text-[10px] text-slate-600 mr-2">Slow</span>
+          <input type="range" id="speed-slider" min="1" max="3" value="2" step="1"
+            class="flex-1 h-1 appearance-none rounded cursor-pointer accent-sky-400" />
+          <span class="text-[10px] text-slate-600 ml-2">Fast</span>
+        </div>
+      </div>
+
+      <!-- Grid size -->
+      <div class="flex flex-col px-4 py-3">
+        <label class="text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">
+          Grid — <span id="grid-size-label" class="text-sky-400">30×30</span>
+        </label>
+        <div class="flex items-center mt-1">
+          <span class="text-[10px] text-slate-600 mr-2">20</span>
+          <input type="range" id="grid-size-slider" min="10" max="50" value="30" step="5"
+            class="flex-1 h-1 appearance-none rounded cursor-pointer accent-sky-400" />
+          <span class="text-[10px] text-slate-600 ml-2">50</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons row -->
+    <div class="w-full flex items-center justify-between px-5 py-3
+                bg-[rgba(5,10,20,0.82)] backdrop-blur-xl
+                border border-[rgba(56,189,248,0.18)] rounded-b-xl
+                border-t-[rgba(56,189,248,0.06)]">
+
+      <div class="flex items-center space-x-2">
+        <!-- Visualize -->
+        <button id="btn-visualize"
+          class="hud-btn-primary px-5 py-2 rounded-lg text-sm font-semibold
+                 tracking-wider uppercase transition-all duration-200
+                 bg-sky-500 hover:bg-sky-400 text-slate-900
+                 border border-sky-400 hover:border-sky-300
+                 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+          ▶ Visualize
+        </button>
+
+        <!-- Generate Maze -->
+        <button id="btn-maze"
+          class="px-4 py-2 rounded-lg text-sm font-medium tracking-wider uppercase
+                 transition-all duration-200 text-purple-300
+                 border border-purple-500/30 hover:border-purple-400/60
+                 hover:bg-purple-500/10 active:scale-95
+                 disabled:opacity-40 disabled:cursor-not-allowed">
+          ⬡ Generate Maze
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <!-- Clear Path -->
+        <button id="btn-clear-path"
+          class="px-4 py-2 rounded-lg text-sm font-medium tracking-wider uppercase
+                 transition-all duration-200 text-amber-300
+                 border border-amber-500/30 hover:border-amber-400/60
+                 hover:bg-amber-500/10 active:scale-95
+                 disabled:opacity-40 disabled:cursor-not-allowed">
+          ✕ Clear Path
+        </button>
+
+        <!-- Clear Board -->
+        <button id="btn-clear-board"
+          class="px-4 py-2 rounded-lg text-sm font-medium tracking-wider uppercase
+                 transition-all duration-200 text-rose-300
+                 border border-rose-500/30 hover:border-rose-400/60
+                 hover:bg-rose-500/10 active:scale-95
+                 disabled:opacity-40 disabled:cursor-not-allowed">
+          ⬛ Clear Board
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--   INSTRUCTIONS — left side float           -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="fixed left-4 top-1/2 -translate-y-1/2 z-50
+              bg-[rgba(5,10,20,0.78)] backdrop-blur-xl
+              border border-[rgba(56,189,248,0.12)] rounded-xl
+              px-4 py-4 w-44 hidden md:block">
+    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-3 font-semibold">Controls</p>
+    <div class="flex flex-col space-y-2 text-[11px] text-slate-400">
+      <div class="flex items-start space-x-2">
+        <span class="text-sky-400 mt-0.5">◈</span>
+        <span>Click + drag to paint walls</span>
+      </div>
+      <div class="flex items-start space-x-2">
+        <span class="text-sky-400 mt-0.5">◈</span>
+        <span>Click wall to erase</span>
+      </div>
+      <div class="flex items-start space-x-2">
+        <span class="text-sky-400 mt-0.5">◈</span>
+        <span>Drag Start/End to move</span>
+      </div>
+      <div class="w-full h-px bg-slate-800 my-1"></div>
+      <div class="flex items-start space-x-2">
+        <span class="text-purple-400 mt-0.5">◈</span>
+        <span>Right-drag to rotate</span>
+      </div>
+      <div class="flex items-start space-x-2">
+        <span class="text-purple-400 mt-0.5">◈</span>
+        <span>Scroll to zoom</span>
+      </div>
+      <div class="flex items-start space-x-2">
+        <span class="text-purple-400 mt-0.5">◈</span>
+        <span>Middle-drag to pan</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--   LEGEND — bottom floating panel            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50
+              bg-[rgba(5,10,20,0.82)] backdrop-blur-xl
+              border border-[rgba(56,189,248,0.15)] rounded-xl
+              px-5 py-3 flex items-center space-x-6">
+
+    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold hidden sm:block">Legend</p>
+
+    <div class="flex items-center space-x-1">
+      <div class="w-4 h-4 rounded-sm bg-emerald-400 shadow-lg shadow-emerald-500/50"></div>
+      <span class="text-[11px] text-slate-300 ml-1">Start</span>
+    </div>
+    <div class="flex items-center space-x-1">
+      <div class="w-4 h-4 rounded-sm bg-rose-500 shadow-lg shadow-rose-500/50"></div>
+      <span class="text-[11px] text-slate-300 ml-1">Target</span>
+    </div>
+    <div class="flex items-center space-x-1">
+      <div class="w-4 h-4 rounded-sm bg-slate-400"></div>
+      <span class="text-[11px] text-slate-300 ml-1">Wall</span>
+    </div>
+    <div class="flex items-center space-x-1">
+      <div class="w-4 h-4 rounded-sm bg-cyan-400 shadow-lg shadow-cyan-400/40"></div>
+      <span class="text-[11px] text-slate-300 ml-1">Visited</span>
+    </div>
+    <div class="flex items-center space-x-1">
+      <div class="w-4 h-4 rounded-sm bg-amber-300 shadow-lg shadow-amber-300/60"></div>
+      <span class="text-[11px] text-slate-300 ml-1">Path</span>
+    </div>
+    <div class="flex items-center space-x-1">
+      <div class="w-4 h-4 rounded-sm bg-[#1e2d45]"></div>
+      <span class="text-[11px] text-slate-300 ml-1">Empty</span>
+    </div>
+
+    <!-- Stats -->
+    <div class="hidden sm:flex items-center space-x-4 pl-4 border-l border-slate-700">
+      <div class="flex flex-col items-center">
+        <span id="stat-visited" class="text-sky-400 text-sm font-bold">0</span>
+        <span class="text-[9px] text-slate-500 uppercase tracking-wider">Visited</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <span id="stat-path" class="text-amber-300 text-sm font-bold">0</span>
+        <span class="text-[9px] text-slate-500 uppercase tracking-wider">Path Len</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--   TOAST notifications                       -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center space-y-2 pointer-events-none"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
