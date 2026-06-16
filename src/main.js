@@ -152,5 +152,12 @@ requestAnimationFrame(loop);
 
 // ── 8. Welcome toast ─────────────────────────────────
 setTimeout(() => {
-  ui.toast('Welcome! Left-click/drag to paint walls. Right-drag to rotate.', 'info', 4500);
+  // Detect if the device has a touch screen
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  const welcomeMessage = isTouchDevice
+    ? 'Welcome! Tap or drag to paint walls. 2-Finger drag to rotate.'
+    : 'Welcome! Left-click/drag to paint walls. Right-drag to rotate.';
+    
+  ui.toast(welcomeMessage, 'info', 4500);
 }, 400);
