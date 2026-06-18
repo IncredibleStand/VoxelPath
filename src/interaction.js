@@ -72,13 +72,16 @@ export class Interaction {
   }
 
   _onDown(e) {
-    if (e.button !== 0) return;   // left-click only
+    if (!e || e.button !== 0) return;
     if (this.locked) return;
 
     this._mouseDown = true;
     const ndc = this._normalize(e);
     const hit = this.pathScene.getIntersection(ndc.x, ndc.y);
     if (!hit) { this._mode = DRAG_MODE.NONE; return; }
+
+    // LOCK CAMERA: User clicked the grid, prevent OrbitControls from moving
+    this.pathScene.controls.enabled = false;
 
     const { row, col } = hit;
     const node = this.grid.get(row, col);
@@ -146,6 +149,11 @@ export class Interaction {
     this._mouseDown = false;
     this._mode      = DRAG_MODE.NONE;
     this._lastRC    = null;
+
+    // 🟢 RE-ENABLE CAMERA: User stopped painting
+    if (this.pathScene && this.pathScene.controls) {
+      this.pathScene.controls.enabled = true;
+    }
   }
 
   // ─── Grid mutations ───────────────────────────────

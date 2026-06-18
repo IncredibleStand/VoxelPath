@@ -24,114 +24,124 @@
         <span class="text-sky-400 text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase">VoxelPath</span>
         <span class="ml-2 sm:ml-3 text-[8px] sm:text-[10px] text-slate-500 tracking-widest uppercase hidden sm:inline-block">3D Pathfinding Visualizer</span>
       </div>
-      <div id="status-badge"
-        class="text-[9px] sm:text-[10px] px-3 py-1 rounded-full border border-slate-700
-               text-slate-400 tracking-widest uppercase transition-all duration-300">
-        IDLE
+      
+      <div class="flex items-center space-x-3">
+        <div id="status-badge"
+          class="text-[9px] sm:text-[10px] px-3 py-1 rounded-full border border-slate-700
+                 text-slate-400 tracking-widest uppercase transition-all duration-300">
+          IDLE
+        </div>
+        <button id="btn-toggle-hud" class="p-1 text-sky-400 hover:text-white bg-slate-800/50 hover:bg-slate-700 rounded border border-[rgba(56,189,248,0.2)] transition-colors focus:outline-none pointer-events-auto">
+          <svg id="hud-chevron" class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <div class="w-full grid grid-cols-2 md:grid-cols-4
-                bg-[rgba(5,10,20,0.78)] backdrop-blur-xl
-                border-x border-[rgba(56,189,248,0.12)]
-                divide-x divide-[rgba(56,189,248,0.08)]">
+    <div id="hud-body" class="w-full overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-[800px]">
+      <div class="w-full grid grid-cols-2 md:grid-cols-4
+                  bg-[rgba(5,10,20,0.78)] backdrop-blur-xl
+                  border-x border-[rgba(56,189,248,0.12)]
+                  divide-x divide-[rgba(56,189,248,0.08)]">
 
-      <div class="flex flex-col px-3 sm:px-4 py-3 border-b md:border-b-0 border-[rgba(56,189,248,0.08)]">
-        <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">Algorithm</label>
-        <select id="algorithm-select"
-          class="bg-transparent text-sky-300 text-xs sm:text-sm font-medium
-                 border border-[rgba(56,189,248,0.2)] rounded-md px-1 sm:px-2 py-1.5
-                 focus:outline-none focus:border-sky-400 cursor-pointer
-                 appearance-none pr-4 sm:pr-6 relative w-full text-ellipsis overflow-hidden">
-          <option value="astar">A* (A-Star)</option>
-          <option value="dijkstra">Dijkstra's</option>
-          <option value="bfs">Breadth-First</option>
-          <option value="dfs">Depth-First</option>
-        </select>
-      </div>
+        <div class="flex flex-col px-3 sm:px-4 py-3 border-b md:border-b-0 border-[rgba(56,189,248,0.08)]">
+          <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">Algorithm</label>
+          <select id="algorithm-select"
+            class="bg-transparent text-sky-300 text-xs sm:text-sm font-medium
+                   border border-[rgba(56,189,248,0.2)] rounded-md px-1 sm:px-2 py-1.5
+                   focus:outline-none focus:border-sky-400 cursor-pointer
+                   appearance-none pr-4 sm:pr-6 relative w-full text-ellipsis overflow-hidden">
+            <option value="astar">A* (A-Star)</option>
+            <option value="dijkstra">Dijkstra's</option>
+            <option value="bfs">Breadth-First</option>
+            <option value="dfs">Depth-First</option>
+          </select>
+        </div>
 
-      <div class="flex flex-col px-3 sm:px-4 py-3 border-b md:border-b-0 border-[rgba(56,189,248,0.08)]">
-        <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">Maze Type</label>
-        <select id="maze-select"
-          class="bg-transparent text-sky-300 text-xs sm:text-sm font-medium
-                 border border-[rgba(56,189,248,0.2)] rounded-md px-1 sm:px-2 py-1.5
-                 focus:outline-none focus:border-sky-400 cursor-pointer
-                 appearance-none w-full text-ellipsis overflow-hidden">
-          <option value="none">No Maze</option>
-          <option value="recursive">Recursive Division</option>
-          <option value="scatter">Random Scatter</option>
-          <option value="spiral">Spiral Maze</option>
-        </select>
-      </div>
+        <div class="flex flex-col px-3 sm:px-4 py-3 border-b md:border-b-0 border-[rgba(56,189,248,0.08)]">
+          <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5">Maze Type</label>
+          <select id="maze-select"
+            class="bg-transparent text-sky-300 text-xs sm:text-sm font-medium
+                   border border-[rgba(56,189,248,0.2)] rounded-md px-1 sm:px-2 py-1.5
+                   focus:outline-none focus:border-sky-400 cursor-pointer
+                   appearance-none w-full text-ellipsis overflow-hidden">
+            <option value="none">No Maze</option>
+            <option value="recursive">Recursive Division</option>
+            <option value="scatter">Random Scatter</option>
+            <option value="spiral">Spiral Maze</option>
+          </select>
+        </div>
 
-      <div class="flex flex-col px-3 sm:px-4 py-3">
-        <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5 whitespace-nowrap">
-          Speed — <span id="speed-label" class="text-sky-400">Normal</span>
-        </label>
-        <div class="flex items-center mt-1">
-          <span class="text-[9px] sm:text-[10px] text-slate-600 mr-1 sm:mr-2">Slow</span>
-          <input type="range" id="speed-slider" min="1" max="3" value="2" step="1"
-            class="flex-1 h-1 appearance-none rounded cursor-pointer accent-sky-400 w-full" />
-          <span class="text-[9px] sm:text-[10px] text-slate-600 ml-1 sm:ml-2">Fast</span>
+        <div class="flex flex-col px-3 sm:px-4 py-3">
+          <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5 whitespace-nowrap">
+            Speed — <span id="speed-label" class="text-sky-400">Normal</span>
+          </label>
+          <div class="flex items-center mt-1">
+            <span class="text-[9px] sm:text-[10px] text-slate-600 mr-1 sm:mr-2">Slow</span>
+            <input type="range" id="speed-slider" min="1" max="3" value="2" step="1"
+              class="flex-1 h-1 appearance-none rounded cursor-pointer accent-sky-400 w-full" />
+            <span class="text-[9px] sm:text-[10px] text-slate-600 ml-1 sm:ml-2">Fast</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col px-3 sm:px-4 py-3">
+          <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5 whitespace-nowrap">
+            Grid — <span id="grid-size-label" class="text-sky-400">30×30</span>
+          </label>
+          <div class="flex items-center mt-1">
+            <span class="text-[9px] sm:text-[10px] text-slate-600 mr-1 sm:mr-2">20</span>
+            <input type="range" id="grid-size-slider" min="10" max="50" value="30" step="5"
+              class="flex-1 h-1 appearance-none rounded cursor-pointer accent-sky-400 w-full" />
+            <span class="text-[9px] sm:text-[10px] text-slate-600 ml-1 sm:ml-2">50</span>
+          </div>
         </div>
       </div>
 
-      <div class="flex flex-col px-3 sm:px-4 py-3">
-        <label class="text-[9px] sm:text-[10px] text-slate-500 uppercase tracking-widest mb-1.5 whitespace-nowrap">
-          Grid — <span id="grid-size-label" class="text-sky-400">30×30</span>
-        </label>
-        <div class="flex items-center mt-1">
-          <span class="text-[9px] sm:text-[10px] text-slate-600 mr-1 sm:mr-2">20</span>
-          <input type="range" id="grid-size-slider" min="10" max="50" value="30" step="5"
-            class="flex-1 h-1 appearance-none rounded cursor-pointer accent-sky-400 w-full" />
-          <span class="text-[9px] sm:text-[10px] text-slate-600 ml-1 sm:ml-2">50</span>
+      <div class="w-full flex flex-col md:flex-row items-center justify-between px-3 sm:px-5 py-3
+                  bg-[rgba(5,10,20,0.82)] backdrop-blur-xl
+                  border border-[rgba(56,189,248,0.18)] rounded-b-xl
+                  border-t-[rgba(56,189,248,0.06)]">
+
+        <div class="flex items-center space-x-2 w-full md:w-auto mb-3 md:mb-0">
+          <button id="btn-visualize"
+            class="flex-1 md:flex-none hud-btn-primary px-3 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold
+                   tracking-wider uppercase transition-all duration-200
+                   bg-sky-500 hover:bg-sky-400 text-slate-900
+                   border border-sky-400 hover:border-sky-300
+                   active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-center">
+            ▶ Visualize
+          </button>
+
+          <button id="btn-maze"
+            class="flex-1 md:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium tracking-wider uppercase
+                   transition-all duration-200 text-purple-300
+                   border border-purple-500/30 hover:border-purple-400/60
+                   hover:bg-purple-500/10 active:scale-95
+                   disabled:opacity-40 disabled:cursor-not-allowed text-center whitespace-nowrap">
+            ⬡ Generate Maze
+          </button>
         </div>
-      </div>
-    </div>
 
-    <div class="w-full flex flex-col md:flex-row items-center justify-between px-3 sm:px-5 py-3
-                bg-[rgba(5,10,20,0.82)] backdrop-blur-xl
-                border border-[rgba(56,189,248,0.18)] rounded-b-xl
-                border-t-[rgba(56,189,248,0.06)]">
+        <div class="flex items-center space-x-2 w-full md:w-auto">
+          <button id="btn-clear-path"
+            class="flex-1 md:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium tracking-wider uppercase
+                   transition-all duration-200 text-amber-300
+                   border border-amber-500/30 hover:border-amber-400/60
+                   hover:bg-amber-500/10 active:scale-95
+                   disabled:opacity-40 disabled:cursor-not-allowed text-center whitespace-nowrap">
+            ✕ Clear Path
+          </button>
 
-      <div class="flex items-center space-x-2 w-full md:w-auto mb-3 md:mb-0">
-        <button id="btn-visualize"
-          class="flex-1 md:flex-none hud-btn-primary px-3 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold
-                 tracking-wider uppercase transition-all duration-200
-                 bg-sky-500 hover:bg-sky-400 text-slate-900
-                 border border-sky-400 hover:border-sky-300
-                 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-center">
-          ▶ Visualize
-        </button>
-
-        <button id="btn-maze"
-          class="flex-1 md:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium tracking-wider uppercase
-                 transition-all duration-200 text-purple-300
-                 border border-purple-500/30 hover:border-purple-400/60
-                 hover:bg-purple-500/10 active:scale-95
-                 disabled:opacity-40 disabled:cursor-not-allowed text-center whitespace-nowrap">
-          ⬡ Generate Maze
-        </button>
-      </div>
-
-      <div class="flex items-center space-x-2 w-full md:w-auto">
-        <button id="btn-clear-path"
-          class="flex-1 md:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium tracking-wider uppercase
-                 transition-all duration-200 text-amber-300
-                 border border-amber-500/30 hover:border-amber-400/60
-                 hover:bg-amber-500/10 active:scale-95
-                 disabled:opacity-40 disabled:cursor-not-allowed text-center whitespace-nowrap">
-          ✕ Clear Path
-        </button>
-
-        <button id="btn-clear-board"
-          class="flex-1 md:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium tracking-wider uppercase
-                 transition-all duration-200 text-rose-300
-                 border border-rose-500/30 hover:border-rose-400/60
-                 hover:bg-rose-500/10 active:scale-95
-                 disabled:opacity-40 disabled:cursor-not-allowed text-center whitespace-nowrap">
-          ⬛ Clear Board
-        </button>
+          <button id="btn-clear-board"
+            class="flex-1 md:flex-none px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium tracking-wider uppercase
+                   transition-all duration-200 text-rose-300
+                   border border-rose-500/30 hover:border-rose-400/60
+                   hover:bg-rose-500/10 active:scale-95
+                   disabled:opacity-40 disabled:cursor-not-allowed text-center whitespace-nowrap">
+            ⬛ Clear Board
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -139,34 +149,48 @@
   <div class="fixed left-4 top-1/2 -translate-y-1/2 z-50
               bg-[rgba(5,10,20,0.78)] backdrop-blur-xl
               border border-[rgba(56,189,248,0.12)] rounded-xl
-              px-4 py-4 w-44 hidden xl:block pointer-events-none">
-    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-3 font-semibold">Controls</p>
-    <div class="flex flex-col space-y-2 text-[11px] text-slate-400">
-      <div class="flex items-start space-x-2">
-        <span class="text-sky-400 mt-0.5">◈</span>
-        <span>Click + drag to paint walls</span>
+              px-4 py-4 w-52 hidden xl:block pointer-events-none">
+              
+    <p class="text-[12px] text-sky-400 uppercase tracking-widest font-bold border-b border-[rgba(56,189,248,0.2)] pb-2 mb-3">Controls</p>
+    
+    <div class="flex flex-col space-y-4 text-[11px] text-slate-400">
+      
+      <div>
+        <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold">On Grid</p>
+        <div class="flex flex-col space-y-2">
+          <div class="flex items-start space-x-2">
+            <span class="text-sky-400 mt-0.5">◈</span>
+            <span><strong class="text-slate-200">Click Cell:</strong> Raise / Drop</span>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="text-sky-400 mt-0.5">◈</span>
+            <span><strong class="text-slate-200">Left-Click & Drag:</strong> Paint walls</span>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="text-sky-400 mt-0.5">◈</span>
+            <span><strong class="text-slate-200">Click + Drag:</strong> Reposition Start / Target</span>
+          </div>
+        </div>
       </div>
-      <div class="flex items-start space-x-2">
-        <span class="text-sky-400 mt-0.5">◈</span>
-        <span>Click wall to erase</span>
+      
+      <div>
+        <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold">Background</p>
+        <div class="flex flex-col space-y-2">
+          <div class="flex items-start space-x-2">
+            <span class="text-purple-400 mt-0.5">◈</span>
+            <span><strong class="text-slate-200">Click + Drag:</strong> Rotate camera</span>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="text-purple-400 mt-0.5">◈</span>
+            <span><strong class="text-slate-200">Ctrl + Drag:</strong> Pan camera</span>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="text-purple-400 mt-0.5">◈</span>
+            <span><strong class="text-slate-200">Scroll:</strong> Zoom in/out</span>
+          </div>
+        </div>
       </div>
-      <div class="flex items-start space-x-2">
-        <span class="text-sky-400 mt-0.5">◈</span>
-        <span>Drag Start/End to move</span>
-      </div>
-      <div class="w-full h-px bg-slate-800 my-1"></div>
-      <div class="flex items-start space-x-2">
-        <span class="text-purple-400 mt-0.5">◈</span>
-        <span>2-Finger drag to pan/zoom</span>
-      </div>
-      <div class="flex items-start space-x-2">
-        <span class="text-purple-400 mt-0.5">◈</span>
-        <span>Right-drag to rotate</span>
-      </div>
-      <div class="flex items-start space-x-2">
-        <span class="text-purple-400 mt-0.5">◈</span>
-        <span>Scroll to zoom</span>
-      </div>
+      
     </div>
   </div>
 

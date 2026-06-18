@@ -12,12 +12,12 @@ import { NODE_TYPES } from './grid.js';
 
 // ── Palette ───────────────────────────────────────────
 const COLORS = {
-  [NODE_TYPES.EMPTY]:   new THREE.Color('#0f2236'),
-  [NODE_TYPES.WALL]:    new THREE.Color('#546e8a'),
-  [NODE_TYPES.START]:   new THREE.Color('#22c55e'),
-  [NODE_TYPES.TARGET]:  new THREE.Color('#ef4444'),
-  [NODE_TYPES.VISITED]: new THREE.Color('#06b6d4'),
-  [NODE_TYPES.PATH]:    new THREE.Color('#fbbf24'),
+  [NODE_TYPES.EMPTY]:   new THREE.Color('#1e2d45'), // Legend: bg-[#1e2d45]
+  [NODE_TYPES.WALL]:    new THREE.Color('#94a3b8'), // Legend: bg-slate-400
+  [NODE_TYPES.START]:   new THREE.Color('#34d399'), // Legend: bg-emerald-400
+  [NODE_TYPES.TARGET]:  new THREE.Color('#f43f5e'), // Legend: bg-rose-500
+  [NODE_TYPES.VISITED]: new THREE.Color('#22d3ee'), // Legend: bg-cyan-400
+  [NODE_TYPES.PATH]:    new THREE.Color('#fcd34d'), // Legend: bg-amber-300
 };
 
 const LERP_SPEED = 12;  // per-second lerp factor for scaleY
@@ -52,7 +52,7 @@ export class PathScene {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping       = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
+    this.renderer.toneMappingExposure = 1.25;
 
     // Scene + fog
     this.scene = new THREE.Scene();
@@ -72,16 +72,16 @@ export class PathScene {
     this.controls.minDistance   = 5;
     this.controls.maxDistance   = 120;
     this.controls.mouseButtons  = {
-      LEFT:   THREE.MOUSE.PAN,     // orbit conflicts with wall-painting
+      LEFT:   THREE.MOUSE.ROTATE,
       MIDDLE: THREE.MOUSE.DOLLY,
       RIGHT:  THREE.MOUSE.ROTATE,
     };
 
     // Lights
-    const ambient = new THREE.AmbientLight('#334155', 1.2);
+    const ambient = new THREE.AmbientLight('#334155', 1.8);
     this.scene.add(ambient);
 
-    const sun = new THREE.DirectionalLight('#bae6fd', 2.5);
+    const sun = new THREE.DirectionalLight('#bae6fd', 3.0);
     sun.position.set(30, 60, 40);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -95,7 +95,7 @@ export class PathScene {
     this.scene.add(sun);
 
     // Rim light
-    const rim = new THREE.DirectionalLight('#7c3aed', 0.8);
+    const rim = new THREE.DirectionalLight('#7c3aed', 2.0);
     rim.position.set(-30, 20, -40);
     this.scene.add(rim);
 
@@ -146,7 +146,7 @@ export class PathScene {
     this.scene.add(this._gridLinesMesh);
   }
 
-  // ─── InstancedMesh ────────────────────────────────
+// ─── InstancedMesh ────────────────────────────────
   _buildInstancedMesh() {
     if (this.instancedMesh) {
       this.scene.remove(this.instancedMesh);
@@ -158,8 +158,8 @@ export class PathScene {
 
     const geo = new THREE.BoxGeometry(0.88, 1, 0.88);
     const mat = new THREE.MeshStandardMaterial({
-      roughness: 0.55,
-      metalness: 0.25,
+      roughness: 0.1,
+      metalness: 0.1,  
       vertexColors: false,
     });
 

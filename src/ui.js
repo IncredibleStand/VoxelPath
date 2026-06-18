@@ -54,6 +54,24 @@ export class UI {
       const v = Number(gridSlider.value);
       document.getElementById('grid-size-label').textContent = `${v}×${v}`;
     });
+
+    const btnToggle = document.getElementById('btn-toggle-hud');
+    const hudBody = document.getElementById('hud-body');
+    const chevron = document.getElementById('hud-chevron');
+    let isHudOpen = true;
+
+    btnToggle?.addEventListener('click', () => {
+      isHudOpen = !isHudOpen;
+      if (isHudOpen) {
+        hudBody.classList.remove('max-h-0');
+        hudBody.classList.add('max-h-[800px]');
+        chevron.classList.remove('rotate-180');
+      } else {
+        hudBody.classList.remove('max-h-[800px]');
+        hudBody.classList.add('max-h-0');
+        chevron.classList.add('rotate-180');
+      }
+    });
   }
 
   // ─── Lock / Unlock HUD during animation ───────────
