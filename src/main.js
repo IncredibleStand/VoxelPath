@@ -156,8 +156,8 @@ setTimeout(() => {
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   
   const welcomeMessage = isTouchDevice
-    ? 'Welcome! Tap or drag to paint walls. 2-Finger drag to rotate.'
-    : 'Welcome! Left-click/drag to paint walls. Right-drag to rotate.';
+    ? 'Welcome! Tap or drag cells to raise walls. 2-finger drag to rotate background.'
+    : 'Welcome! Drag on grid to raise walls. Drag background to rotate.';
     
   ui.toast(welcomeMessage, 'info', 4500);
 }, 400);
